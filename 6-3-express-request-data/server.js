@@ -105,14 +105,17 @@ LAB SETUP INSTRUCTIONS
  */
 
 import express from "express";
+import cors from "cors";
 const app = express();
 
 
-// create server
+
 const port = 3000; 
-app.use(express.urlencoded(false));
+app.use(cors());
 app.listen(port, () => {console.log("API is running on  http://localhost:3000")});
-app.get("/", () => {console.log("Welcome to my API")});
+app.get("/", (req, res) => {
+  res.json({ok: true});
+});
 
 
 // Query params: /echo?name=Ali&age=22
@@ -129,20 +132,16 @@ app.get("/echo",(req, res) => {
 // Route params: /profile/First/Last
 app.get("/profile/:first/:last", (req,res) => {
    const {first, last} = req.params;
-   return res.status(200),json({ ok:true, fullName: `${first} ${last}` });
+   return res.status(200).json({ ok:true, fullName: `${first} ${last}` });
 })
 
  app.param("userId", (req,res,next,userId)=>{
    const num = Number(userId);
-   if(!NaN(num)){
-      if (num < 0){
-         return  res.status(400).json({ ok:false, error:"userId must be positive number" });
-      } else{
-         req.userIdNum = num;
-         next();
-      }
+   if(isNaN(num) || num < 0){
       return res.status(400).json({ ok:false, error:"userId must be positive number" });
    }
+   req.userIdNum = num;
+   next();
  });
 
     app.get("/users/:userId", (req,res)=>{
